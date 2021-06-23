@@ -17,7 +17,7 @@ namespace Comercialon.Classes
 
         public string Telefone { get; set; }
 
-        public List<Endereco> Endereco { get; set; }
+        public List<Endereco> Enderecos { get; set; }
         public bool Ativo { get; set; } 
 
 
@@ -31,7 +31,7 @@ namespace Comercialon.Classes
             Cpf = cpf;
             Email = email;
             Telefone = telefone;
-            Endereco = endereco;
+            Enderecos = endereco;
             Ativo = ativo;
         }
 
@@ -42,7 +42,7 @@ namespace Comercialon.Classes
             Cpf = cpf;
             Email = email;
             Telefone = telefone;
-            Endereco = endereco;
+            Enderecos = endereco;
             Ativo = ativo;
         }
 
@@ -72,13 +72,22 @@ namespace Comercialon.Classes
         {
             List<Cliente> lista = new List<Cliente>();
             //Code de listar
-            string query = "select * frpm clientes";
+            string query = "select * from clientes";
             var cmd = Banco.Abrir();
             cmd.CommandText = query;
             var dr = cmd.ExecuteReader();
             while (dr.Read())
             {
-                lista.Add(new Cliente());
+                lista.Add(new Cliente(
+                    dr.GetInt32(0),
+                    dr.GetString(1),
+                    dr.GetString(2),
+                    dr.GetString(3),
+                    dr.GetString(4),
+                    dr.GetBoolean(5),
+                    Endereco.ListaEnderecos(dr.GetInt32(0))
+                    ));
+
             }
             return lista;
         }
