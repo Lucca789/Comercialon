@@ -16,7 +16,7 @@ namespace Comercialon.Classes
 
         public Usuario()
         {
-           
+            
         }
 
         public Usuario(string id, string nome, string senha, string nivel, string situacao)
@@ -34,6 +34,22 @@ namespace Comercialon.Classes
             Senha = senha;
             Nivel = nivel;
             Situacao = situacao;
+        }
+
+        public void Inserir()
+        {
+            var cmd = Banco.Abrir();
+            if (cmd.Connection.State == System.Data.ConnectionState.Open)
+            {
+                //inserir usando concatenações
+                cmd.CommandType = System.Data.CommandType.Text;
+                cmd.CommandText = "insert clientes " +
+                    "(nome, Senha, nivel, situação) " +
+                    "values('" + Nome + "', '" + Senha + "', '" + Nivel + "', '" + Situacao + "',)";
+                cmd.ExecuteNonQuery();//
+                cmd.CommandText = "select @@identity";
+                
+            }
         }
 
 

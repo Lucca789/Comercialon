@@ -19,36 +19,35 @@ namespace Comercialon
             InitializeComponent();
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void btnInserir_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {   // A linha abaixo remove pontos e traços do cpf
+            //Essa linha a seguir remove pontos e traços do cpf
             mskCpf.TextMaskFormat = MaskFormat.ExcludePromptAndLiterals;
 
-        }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
             Cliente cliente = new Cliente(
-               txtNome.Text,
-               mskCpf.Text,
-               txtEmail.Text,
-               txtTelefone.Text
-           );
+                txtNome.Text,
+                mskCpf.Text,
+                txtEmail.Text,
+                txtTelefone.Text
+                );
             cliente.Inserir();
             Endereco endereco = new Endereco
-                (txtLogradouro.Text, txtNumero.Text, txtComplemento.Text
-                , txtCep.Text, txtBairro.Text, txtCidade.Text, cmdTipo.Text,
-                txtEstado.Text, txtUf.Text );
+                (txtLogradouro.Text, txtNumero.Text, txtComplemento.Text, txtCep.Text, txtBairro.Text, txtCidade.Text, cmdTipo.Text, txtUf.Text);
+            endereco.Inserir(cliente.Id);
+            txtId.Text = cliente.Id.ToString();
             MessageBox.Show("Cliente " + cliente.Id + " inserido.");
+            LimpaCampos();
+            btnListar_Click(sender, e);
+
+        }
+
+        private void LimpaCampos()
+        {
+            txtId.Clear();
+            txtNome.Clear();
+            mskCpf.Clear();
+            txtEmail.Clear();
+            txtTelefone.Clear();
         }
 
         private void txtEmail_TextChanged(object sender, EventArgs e)
@@ -64,58 +63,135 @@ namespace Comercialon
             else
             {
                 btnInserir.Enabled = false;
+                txtEmail.Focus();
             }
-            
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label4_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox7_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox8_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label7_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label8_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void groupBox2_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtCpf_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
-        {
 
         }
 
         private void txtCep_TextChanged(object sender, EventArgs e)
         {
+            if (txtCep.Text.Length == 8)
+            {
+                var cep = Cep.Obter(txtCep.Text);
+                txtBairro.Text = cep.Bairro;
+                txtCidade.Text = cep.Localidade;
+                txtLogradouro.Text = cep.Logradouro;
+                txtUf.Text = cep.Uf;
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
 
         }
+        
+
+        private void button1_Click_3(object sender, EventArgs e)
+        {
+            if (button1.Text == "...")
+            { txtId.ReadOnly = false;
+                txtId.Focus();
+                BloquearControles();
+                button1.Text = "Buscar";
+
+            }
+            else
+            {
+                txtId.ReadOnly = true;
+                txtNome.Focus();
+                DesbloquearControles();
+                button1.Text = "...";
+                Cliente cliente = new Cliente();
+                cliente.BuscarPorId(int.Parse(txtId.Text));
+                if (cliente.Id>0)
+                {
+                    txtNome.Text = cliente.Nome;
+                    txtEmail.Text = cliente.Email;
+                    txtTelefone.Text = cliente.Telefone;
+                    mskCpf.Text = cliente.Cpf;
+                    chkAtivo.Enabled = false;
+                    chkAtivo.Checked = cliente.Ativo;
+                    chkAtivo.Enabled = true;
+                    
+                }
+                else
+                {
+                    MessageBox.Show("Cliente Nâo encontrado");
+                }
+               
+
+
+            }
+
+
+
+        }
+
+        private void DesbloquearControles()
+        {
+            txtNome.Enabled = true;
+            txtEmail.Enabled = true;
+            txtTelefone.Enabled = true;
+            mskCpf.Enabled = true;
+
+
+
+        }
+        private void BloquearControles()
+        {
+
+            txtNome.Enabled = false;
+            txtEmail.Enabled = false;
+            txtTelefone.Enabled = false;
+            mskCpf.Enabled = false;
+
+
+        }
+
+        private void chkAtivo_CheckedChanged(object sender, EventArgs e)
+        {
+            Cliente cliente = new Cliente();
+            cliente.Id = int.Parse(txtId.Text);
+            cliente.Nome = txtNome.Text;
+            cliente.Telefone = txtTelefone.Text;
+            cliente.Email = txtEmail.Text;
+            cliente.Ativo = chkAtivo.Checked;
+            if (cliente.Alterar())
+            {
+                MessageBox.Show("Cliente a alterando com sucesso");
+                LimpaCampos();
+                btnListar_Click(sender, e);
+            }
+            else
+            {
+                MessageBox.Show("Falha ao carregar o cliente");
+
+            }
+            
+        }
+
+      
+
+        private void btnListar_Click(object sender, EventArgs e)
+        {
+            dgvClientes.Rows.Clear();
+            var lista = Cliente.ListarTodos();
+            foreach (var item in lista)
+            {
+                dgvClientes.Rows.Add();
+                dgvClientes.Rows[dgvClientes.Rows.Count-1].Cells[0].Value = item.Id;
+                dgvClientes.Rows[dgvClientes.Rows.Count - 1].Cells[1].Value = item.Nome;
+                dgvClientes.Rows[dgvClientes.Rows.Count - 1].Cells[2].Value = item.Cpf;
+                dgvClientes.Rows[dgvClientes.Rows.Count - 1].Cells[3].Value = item.Email;
+                dgvClientes.Rows[dgvClientes.Rows.Count - 1].Cells[4].Value = item.Telefone;
+                dgvClientes.Rows[dgvClientes.Rows.Count - 1].Cells[5].Value = item.Ativo;
+            }
+        }
+
+        private void dgvClientes_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+           
+        }
+
     }
 }
