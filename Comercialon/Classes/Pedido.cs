@@ -38,7 +38,7 @@ namespace Comercialon.Classes
             Desconto = desconto;
             Usuario = usuario;
             Cliente = cliente;
-            ItemsPedidos = itemsPedidos;
+            ItemsPedidos = itemsPedidos; 
         }
     }
 }
